@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Texteditorapp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="background">@color/dark</item>
+        <item name="backgroundColor">@color/black</item>
+        <item name="colorPrimary">@color/blue_700</item>
+        <item name="colorPrimaryVariant">@color/blue_300</item>
+        <item name="colorOnPrimary">@color/light</item>
+        <item name="colorAccent">@color/green_300</item>
+        <item name="colorSecondary">@color/blue_300</item>
+        <item name="colorSecondaryVariant">@color/green_700</item>
+        <item name="colorOnSecondary">@color/light</item>
+        <item name="android:statusBarColor">@color/blue_800</item>
+        <item name="popupMenuBackground">@color/blue_500</item>
+    </style>
+</resources>

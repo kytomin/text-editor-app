@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Text Editor</string>
+    <string name="search">Search</string>
+    <string name="undo">Undo</string>
+    <string name="save">Save</string>
+    <string name="redo">Redo</string>
+    <string name="no_recent_files">No recent files</string>
+    <string name="file_content">File Content</string>
+    <string name="example_text">Example text</string>
+    <string name="want_save_changes">Do you want to save the latest changes?</string>
+    <string name="want_delete_files">Do you want to delete the selected files?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="save_as">Save as</string>
+    <string name="new_file">New file</string>
+    <string name="existing_file">Existing file</string>
+    <string name="select_all">Select all</string>
+    <string name="clear_all">Clear all</string>
+</resources>
