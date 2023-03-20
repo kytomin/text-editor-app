@@ -11,5 +11,6 @@
         <item name="colorOnSecondary">@color/light</item>
         <item name="android:statusBarColor">@color/blue_800</item>
         <item name="popupMenuBackground">@color/blue_500</item>
+        <item name="alertDialogTheme">@style/DarkDialogCustom</item>
     </style>
 </resources>

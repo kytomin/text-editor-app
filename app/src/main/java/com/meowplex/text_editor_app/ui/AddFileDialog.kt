@@ -13,13 +13,18 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.databinding.AddFileDialogBinding
-import com.meowplex.text_editor_app.utils.PathUtil
+import com.meowplex.text_editor_app.extensions.showPermissionsToast
+import com.meowplex.text_editor_app.repository.PermissionRepository
+import com.meowplex.text_editor_app.utils.FileUtils
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
+import java.io.File
 
 
 class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
 
     private lateinit var binding: AddFileDialogBinding
+
+    var hasStoragePermission: Boolean = false
 
     companion object {
         const val TAG = "AddFileDialog"
@@ -30,11 +35,12 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
                 if (uri != null) {
-                    val path = PathUtil.getPath(this.requireContext(), uri)
+                    val path = FileUtils.getPath(requireContext(), uri)
                     binding.viewmodel!!.onAddFile(path!!)
-                    this.dismiss()
+
                 }
             }
+            this.dismiss()
         }
 
     override fun onCreateView(
@@ -42,7 +48,7 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.add_file_dialog, container, false)
         binding.viewmodel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
-
+        hasStoragePermission = PermissionRepository().checkStoragePermission()
         return binding.root
     }
 
@@ -52,7 +58,10 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
         val addExistingFileView = view.findViewById<LinearLayout>(R.id.add_existing_file_view)
 
         createFileView.setOnClickListener{
-            binding.viewmodel!!.onCreateFile()
+            if (!hasStoragePermission)
+                context?.showPermissionsToast()
+            else
+                binding.viewmodel!!.onCreateFile()
             this.dismiss()
         }
 
@@ -65,4 +74,5 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
             pickFileLauncher.launch(intent)
         }
     }
+
 }

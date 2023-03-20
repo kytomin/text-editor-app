@@ -19,4 +19,5 @@
     <string name="existing_file">Existing file</string>
     <string name="select_all">Select all</string>
     <string name="clear_all">Clear all</string>
+    <string name="give_permissions">For the full application work, give permissions in the settings</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.meowplex.text_editor_app.utils
+package com.meowplex.text_editor_app.extensions
 
 import androidx.lifecycle.MutableLiveData
 

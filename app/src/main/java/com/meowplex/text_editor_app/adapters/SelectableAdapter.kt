@@ -14,6 +14,7 @@ abstract class SelectableAdapter<VH : RecyclerView.ViewHolder>: RecyclerView.Ada
             selectedItems.clear()
         }
         field = value
+        notifyDataSetChanged()
     }
 
     fun isSelected(position: Int): Boolean {
@@ -28,7 +29,7 @@ abstract class SelectableAdapter<VH : RecyclerView.ViewHolder>: RecyclerView.Ada
         }
         isSelectMode = selectedItems.size != 0
         notifyItemChanged(position)
-        notifyDataSetChanged()
+
     }
 
     fun selectAll() {
@@ -39,17 +40,11 @@ abstract class SelectableAdapter<VH : RecyclerView.ViewHolder>: RecyclerView.Ada
             }
             notifyItemChanged(i)
         }
-        notifyDataSetChanged()
     }
 
     fun clearSelection() {
         isSelectMode = false
-        val selection = getSelectedIndexes()
         selectedItems.clear()
-        for (i in selection) {
-            notifyItemChanged(i)
-        }
-        notifyDataSetChanged()
     }
 
     val selectedItemCount: Int
