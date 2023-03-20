@@ -11,6 +11,5 @@
         <item name="colorOnSecondary">@color/light</item>
         <item name="android:statusBarColor">@color/blue_700</item>
         <item name="popupMenuBackground">@color/blue_300</item>
-
     </style>
 </resources>

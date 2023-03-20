@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.databinding.FragmentEditFileBinding
-import com.meowplex.text_editor_app.utils.PathUtil
+import com.meowplex.text_editor_app.utils.FileUtils
 import com.meowplex.text_editor_app.viewmodel.EditFileViewModel
 
 
@@ -31,7 +31,7 @@ class EditFileFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
                 if (uri != null) {
-                    val path = PathUtil.getPath(this.requireContext(), uri)
+                    val path = FileUtils.getPath(requireContext(), uri)
                     binding.viewmodel!!.onSaveAs(path!!)
                     findNavController().popBackStack()
                 }
@@ -73,6 +73,9 @@ class EditFileFragment : Fragment() {
             viewLifecycleOwner,
             onBackPressedCallback
         )
+        val path = requireArguments().getString("path")
+        if (path != null)
+            binding.viewmodel!!.setFile(path)
         return binding.root
     }
 

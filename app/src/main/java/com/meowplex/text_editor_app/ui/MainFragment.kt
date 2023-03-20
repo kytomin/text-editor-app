@@ -17,8 +17,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.adapters.MainAdapter
 import com.meowplex.text_editor_app.databinding.FragmentMainBinding
-import com.meowplex.text_editor_app.utils.checkStoragePermission
-import com.meowplex.text_editor_app.viewmodel.EditFileViewModel
+import com.meowplex.text_editor_app.extensions.showPermissionsToast
+import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
 
 
@@ -28,8 +28,6 @@ class MainFragment : Fragment() {
     private lateinit var toolBar: Toolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var floatingActionButton: FloatingActionButton
-
-    private var hasStoragePermission: Boolean = false
 
     private val onBackPressedCallback: OnBackPressedCallback =
         object : OnBackPressedCallback(true) {
@@ -53,7 +51,6 @@ class MainFragment : Fragment() {
             viewLifecycleOwner,
             onBackPressedCallback
         )
-        hasStoragePermission = activity?.checkStoragePermission() ?: false
 
         return binding.root
     }
@@ -77,7 +74,10 @@ class MainFragment : Fragment() {
         toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_delete -> {
-                    showDeleteConfirmDialog(view)
+                    if (!PermissionRepository().checkStoragePermission())
+                        context?.showPermissionsToast()
+                    else
+                        showDeleteConfirmDialog(view)
                 }
                 R.id.action_clear_all -> {
                     stopSelectMode()
@@ -103,9 +103,14 @@ class MainFragment : Fragment() {
 
             recyclerView.adapter = MainAdapter(files,
                 { file ->
-                    binding.viewmodel?.onOpenFile(file)
-                    ViewModelProvider(requireActivity())[EditFileViewModel::class.java].setFile(file)
-                    findNavController().navigate(R.id.editFileFragment)
+                    if (!PermissionRepository().checkStoragePermission())
+                        context?.showPermissionsToast()
+                    else {
+                        binding.viewmodel?.onOpenFile(file)
+                        val bundle = Bundle()
+                        bundle.putString("path", file.path)
+                        findNavController().navigate(R.id.editFileFragment, bundle)
+                    }
                 },
                 {
                     onChangeSelection()

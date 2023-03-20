@@ -15,11 +15,11 @@ class EditFileViewModel : ViewModel() {
     private val fileRepository = FileRepository()
     private val dbRepository = DbRepository()
 
-    private lateinit var fileChangeHistory: MutableList<String>
+    private  var fileChangeHistory: MutableList<String> = mutableListOf()
     private var index: Int = 0
-    private lateinit var name: String
-    private lateinit var path: String
-    private lateinit var savedContent: String
+    private  var name: String = ""
+    private  var path: String = ""
+    private  var savedContent: String = ""
 
     fun setFile(file: FileModel) {
         name = file.fileName
@@ -28,6 +28,10 @@ class EditFileViewModel : ViewModel() {
         savedContent = content
         fileChangeHistory = mutableListOf(content)
         index = 0
+    }
+
+    fun setFile(path: String){
+        setFile(FileModel(path))
     }
 
     fun getFileContent(): String {
