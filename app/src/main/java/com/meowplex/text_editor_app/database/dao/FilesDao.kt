@@ -11,16 +11,17 @@ interface FilesDao {
 
 
     @Query("SELECT * FROM ${AppDatabase.tableName} WHERE path = :path")
-    suspend fun findByPath(path: String): FileEntity
+    suspend fun findByPath(path: String): FileEntity?
 
     @Update
     suspend fun updateFile(file: FileEntity)
 
     @Transaction
-    suspend fun updateFileByPath(path: String, file: FileEntity){
+    suspend fun updateFileByPath(path: String, file: FileEntity) {
         insert(file)
         deleteByPath(path)
     }
+
     @Insert
     suspend fun insert(file: FileEntity)
 

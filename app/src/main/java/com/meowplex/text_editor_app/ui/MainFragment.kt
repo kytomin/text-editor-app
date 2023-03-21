@@ -106,7 +106,6 @@ class MainFragment : Fragment() {
                     if (!PermissionRepository().checkStoragePermission())
                         context?.showToastAndRequirePermissions()
                     else {
-                        binding.viewmodel?.onOpenFile(file)
                         val bundle = Bundle()
                         bundle.putString("path", file.path)
                         findNavController().navigate(R.id.editFileFragment, bundle)

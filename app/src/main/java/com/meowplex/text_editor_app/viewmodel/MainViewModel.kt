@@ -25,13 +25,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun onOpenFile(file: FileModel) {
-        viewModelScope.launch {
-            file.lastOpeningDate = Date()
-            dbRepository.updateFile(file)
-        }
-    }
-
     fun onCreateFile() {
         val path = FileRepository().createFile()
         onAddFile(path)
