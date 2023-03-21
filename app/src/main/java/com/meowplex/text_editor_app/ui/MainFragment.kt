@@ -17,7 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.adapters.MainAdapter
 import com.meowplex.text_editor_app.databinding.FragmentMainBinding
-import com.meowplex.text_editor_app.extensions.showPermissionsToast
+import com.meowplex.text_editor_app.extensions.showToastAndRequirePermissions
 import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
 
@@ -75,7 +75,7 @@ class MainFragment : Fragment() {
             when (it.itemId) {
                 R.id.action_delete -> {
                     if (!PermissionRepository().checkStoragePermission())
-                        context?.showPermissionsToast()
+                        context?.showToastAndRequirePermissions()
                     else
                         showDeleteConfirmDialog(view)
                 }
@@ -104,7 +104,7 @@ class MainFragment : Fragment() {
             recyclerView.adapter = MainAdapter(files,
                 { file ->
                     if (!PermissionRepository().checkStoragePermission())
-                        context?.showPermissionsToast()
+                        context?.showToastAndRequirePermissions()
                     else {
                         binding.viewmodel?.onOpenFile(file)
                         val bundle = Bundle()
