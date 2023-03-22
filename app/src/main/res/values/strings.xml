@@ -4,7 +4,7 @@
     <string name="undo">Undo</string>
     <string name="save">Save</string>
     <string name="redo">Redo</string>
-    <string name="no_recent_files">No recent files</string>
+    <string name="files_not_found">Files not found</string>
     <string name="file_content">File Content</string>
     <string name="example_text">Example text</string>
     <string name="want_save_changes">Do you want to save the latest changes?</string>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Text Editor</string>
+    <string name="search">Поиск</string>
+    <string name="undo">Назад</string>
+    <string name="save">Сохранить</string>
+    <string name="redo">Вперед</string>
+    <string name="files_not_found">Файлы не найдены</string>
+    <string name="file_content">Содержимое файла</string>
+    <string name="example_text">Пример</string>
+    <string name="want_save_changes">Вы хотите сохранить изменения?</string>
+    <string name="want_delete_files">Вы хотите удалить выбранные файлы?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="create">Создать</string>
+    <string name="save_as">Сохранить как</string>
+    <string name="new_file">Новый файл</string>
+    <string name="existing_file">Существующий файл</string>
+    <string name="select_all">Выбрать все</string>
+    <string name="clear_all">Очистить все</string>
+    <string name="give_permissions">Для полноценной работы приложения, выдайте разрешения в настройках</string>
+    <string name="filename">Имя файла…</string>
+</resources>
