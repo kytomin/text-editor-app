@@ -32,10 +32,15 @@ class MainViewModel : ViewModel() {
         onAddFile(path)
     }
 
-    fun onRefresh(callback: () -> Unit){
+    fun onRefresh(callback: () -> Unit) {
         viewModelScope.launch {
-            _files.value = dbRepository.getAllFiles()
-            sortFiles()
+            if (searchManager == null) {
+                _files.value = dbRepository.getAllFiles()
+                sortFiles()
+            } else {
+                searchManager!!.setFiles(dbRepository.getAllFiles())
+                _files.value = searchManager!!.research()
+            }
             callback()
         }
     }
@@ -53,9 +58,13 @@ class MainViewModel : ViewModel() {
         }
 
         val newFile = FileModel(path)
-        _files.value = listOf(newFile) + _files.value!!
-
-        sortFiles()
+        if (searchManager == null) {
+            _files.value = listOf(newFile) + _files.value!!
+            sortFiles()
+        } else {
+            searchManager!!.setFiles(listOf(newFile) + searchManager!!.getFiles())
+            _files.value = searchManager!!.research()
+        }
 
         viewModelScope.launch {
             dbRepository.insertFile(newFile)
@@ -63,23 +72,33 @@ class MainViewModel : ViewModel() {
     }
 
     fun onDeleteFiles(deleteFiles: List<FileModel>) {
-        val temp = _files.value!!.toMutableList()
-        temp.removeAll(deleteFiles)
-        _files.value = temp.toList()
+
+        if (searchManager == null) {
+            val temp = _files.value!!.toMutableList()
+            temp.removeAll(deleteFiles)
+            _files.value = temp.toList()
+        } else {
+            val temp = searchManager!!.getFiles().toMutableList()
+            temp.removeAll(deleteFiles)
+            searchManager!!.setFiles(temp)
+            _files.value = searchManager!!.research()
+        }
+
         viewModelScope.launch {
             dbRepository.deleteFiles(deleteFiles)
             fileRepository.deleteFiles(deleteFiles)
         }
     }
 
-    fun onSearch(query: String){
-        if (searchManager == null){
-            searchManager = SearchManager(_files.value!!)
-        }
+    fun onStartSearching() {
+        searchManager = SearchManager(_files.value!!)
+    }
+
+    fun onSearch(query: String) {
         _files.value = searchManager!!.search(query)
     }
 
-    fun onStopSearching(): Boolean{
+    fun onStopSearching(): Boolean {
         searchManager = null
         return false
     }

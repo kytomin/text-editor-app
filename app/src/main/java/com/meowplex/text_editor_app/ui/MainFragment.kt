@@ -23,7 +23,7 @@ import com.meowplex.text_editor_app.adapters.MainAdapter
 import com.meowplex.text_editor_app.databinding.FragmentMainBinding
 import com.meowplex.text_editor_app.extensions.showToastAndRequirePermissions
 import com.meowplex.text_editor_app.model.FileModel
-import com.meowplex.text_editor_app.repository.PermissionRepository
+import com.meowplex.text_editor_app.utils.PermissionManager
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
 
 
@@ -38,12 +38,18 @@ class MainFragment : Fragment() {
     private val onBackPressedCallback: OnBackPressedCallback =
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+
                 if ((recyclerView.adapter as MainAdapter).isSelectMode) {
-                    stopSelectMode()
-                } else {
-                    this.isEnabled = false
-                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    return stopSelectMode()
                 }
+                val searchView = toolBar.menu.findItem(R.id.action_search).actionView as SearchView
+                if (!searchView.isIconified) {
+                    toolBar.title = getString(R.string.app_name)
+                    return searchView.onActionViewCollapsed()
+                }
+                this.isEnabled = false
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+
             }
         }
 
@@ -81,7 +87,7 @@ class MainFragment : Fragment() {
         toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_delete -> {
-                    if (!PermissionRepository().checkStoragePermission()) context?.showToastAndRequirePermissions()
+                    if (!PermissionManager().checkStoragePermission()) context?.showToastAndRequirePermissions()
                     else showConfirmDeletionDialog(view)
                 }
                 R.id.action_clear_all -> {
@@ -108,7 +114,8 @@ class MainFragment : Fragment() {
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    binding.viewmodel!!.onSearch(newText!!)
+                    if (newText != null)
+                        binding.viewmodel!!.onSearch(newText)
                     return true
                 }
             }
@@ -116,12 +123,11 @@ class MainFragment : Fragment() {
 
         searchView.setOnSearchClickListener {
             toolBar.title = getString(R.string.search)
-            floatingActionButton.hide()
+            binding.viewmodel!!.onStartSearching()
         }
 
         searchView.setOnCloseListener {
             toolBar.title = getString(R.string.app_name)
-            floatingActionButton.show()
             binding.viewmodel!!.onStopSearching()
         }
     }
@@ -129,7 +135,7 @@ class MainFragment : Fragment() {
     private fun pushItemsToRecyclerView(view: View) {
 
         fun onItemClick(file: FileModel) {
-            if (!PermissionRepository().checkStoragePermission()) context?.showToastAndRequirePermissions()
+            if (!PermissionManager().checkStoragePermission()) context?.showToastAndRequirePermissions()
             else {
                 val bundle = Bundle()
                 bundle.putString("path", file.path)
@@ -174,7 +180,6 @@ class MainFragment : Fragment() {
         swipeRefresh.setOnRefreshListener {
             binding.viewmodel!!.onRefresh {
                 swipeRefresh.isRefreshing = false
-                stopSelectMode()
             }
         }
     }
@@ -199,6 +204,7 @@ class MainFragment : Fragment() {
         toolBar.title = "$selectedItemsCount/$itemsCount"
         if (!adapter.isSelectMode) return stopSelectMode()
 
+        (toolBar.menu.findItem(R.id.action_search).actionView as SearchView).clearFocus()
         toolBar.menu.findItem(R.id.action_delete).isVisible = true
         toolBar.menu.findItem(R.id.action_search).isVisible = false
         toolBar.menu.findItem(R.id.action_clear_all).isVisible =
@@ -206,6 +212,7 @@ class MainFragment : Fragment() {
         toolBar.menu.findItem(R.id.action_select_all).isVisible =
             adapter.selectedItemCount != adapter.itemCount
         floatingActionButton.hide()
+
     }
 
     private fun stopSelectMode() {
@@ -214,7 +221,11 @@ class MainFragment : Fragment() {
         toolBar.menu.findItem(R.id.action_clear_all).isVisible = false
         toolBar.menu.findItem(R.id.action_select_all).isVisible = false
         toolBar.menu.findItem(R.id.action_search).isVisible = true
-        toolBar.title = getString(R.string.app_name)
+        if (!(toolBar.menu.findItem(R.id.action_search).actionView as SearchView).isIconified) {
+            toolBar.title = getString(R.string.search)
+        } else {
+            toolBar.title = getString(R.string.app_name)
+        }
         floatingActionButton.show()
     }
 

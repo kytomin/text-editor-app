@@ -1,4 +1,4 @@
-package com.meowplex.text_editor_app.repository
+package com.meowplex.text_editor_app.utils
 
 import android.Manifest
 import android.app.Activity
@@ -11,7 +11,7 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.meowplex.text_editor_app.BuildConfig
 
-class PermissionRepository {
+class PermissionManager {
 
     companion object {
 

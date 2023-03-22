@@ -6,9 +6,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import com.meowplex.text_editor_app.database.AppDatabase
-import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.ui.EditFileFragment
 import com.meowplex.text_editor_app.utils.FileUtils
+import com.meowplex.text_editor_app.utils.PermissionManager
 
 
 class MainActivity : AppCompatActivity() {
@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppDatabase.setContext(this)
-        PermissionRepository.setActivity(this)
-        val permRepository = PermissionRepository()
+        PermissionManager.setActivity(this)
+        val permRepository = PermissionManager()
         if (!permRepository.checkStoragePermission())
             permRepository.requireStoragePermission()
 

@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.databinding.AddFileDialogBinding
 import com.meowplex.text_editor_app.extensions.showToastAndRequirePermissions
-import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.utils.FileUtils
+import com.meowplex.text_editor_app.utils.PermissionManager
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
 
 
@@ -47,7 +47,7 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.add_file_dialog, container, false)
         binding.viewmodel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
-        hasStoragePermission = PermissionRepository().checkStoragePermission()
+        hasStoragePermission = PermissionManager().checkStoragePermission()
         return binding.root
     }
 
