@@ -11,7 +11,7 @@ import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.model.FileModel
 
 class MainAdapter(
-    private val dataSet: List<FileModel>,
+    private var dataSet: List<FileModel>,
     private val onItemClick: ((FileModel) -> Unit)? = null,
     private val onChangeSelectItems: ((List<FileModel>) -> Unit)? = null
 ) :
@@ -97,6 +97,12 @@ class MainAdapter(
             } else false
         }
 
+    }
+
+    fun updateDataset(dataSet: List<FileModel>){
+        this.dataSet = dataSet
+        isSelectMode = false
+        notifyDataSetChanged()
     }
 
     fun getSelectedItems() = getSelectedIndexes().map { dataSet[it] }

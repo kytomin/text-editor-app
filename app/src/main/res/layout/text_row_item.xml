@@ -2,16 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:layout_marginVertical="8dp"
-    android:paddingStart="16dp"
+    android:layout_height="48dp"
+    android:layout_marginVertical="4dp"
+    android:layout_marginHorizontal="16dp"
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
     <CheckBox
         android:id="@+id/checkBox"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:buttonTint="?attr/colorSecondaryVariant"
         />
 
@@ -19,6 +19,7 @@
         android:id="@+id/imageView"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_margin="4dp"
         android:src="@drawable/ic_text_file"
         app:tint="?attr/colorAccent" />
 

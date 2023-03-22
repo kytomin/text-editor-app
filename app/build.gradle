@@ -43,6 +43,7 @@ dependencies {
 
     def nav_version = "2.5.3"
     def room_version = "2.5.0"
+    def swipe_refresh_version = "1.1.0"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -58,4 +59,6 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipe_refresh_version"
 }

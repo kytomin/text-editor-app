@@ -75,7 +75,7 @@ class EditFileFragment : Fragment() {
         )
         val path = requireArguments().getString("path")
         if (path != null)
-            binding.viewmodel!!.setFile(path)
+            binding.viewmodel!!.setFileByPath(path)
         return binding.root
     }
 

@@ -13,11 +13,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.databinding.AddFileDialogBinding
-import com.meowplex.text_editor_app.extensions.showPermissionsToast
+import com.meowplex.text_editor_app.extensions.showToastAndRequirePermissions
 import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.utils.FileUtils
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
-import java.io.File
 
 
 class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
@@ -59,7 +58,7 @@ class AddFileDialog : DialogFragment(R.layout.add_file_dialog){
 
         createFileView.setOnClickListener{
             if (!hasStoragePermission)
-                context?.showPermissionsToast()
+                context?.showToastAndRequirePermissions()
             else
                 binding.viewmodel!!.onCreateFile()
             this.dismiss()

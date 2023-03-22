@@ -6,6 +6,7 @@ import com.meowplex.text_editor_app.model.FileModel
 import com.meowplex.text_editor_app.repository.DbRepository
 import com.meowplex.text_editor_app.repository.FileRepository
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class EditFileViewModel : ViewModel() {
@@ -15,22 +16,26 @@ class EditFileViewModel : ViewModel() {
     private val fileRepository = FileRepository()
     private val dbRepository = DbRepository()
 
-    private  var fileChangeHistory: MutableList<String> = mutableListOf()
+    private var fileChangeHistory: MutableList<String> = mutableListOf()
     private var index: Int = 0
-    private  var name: String = ""
-    private  var path: String = ""
-    private  var savedContent: String = ""
+    private var name: String = ""
+    private var path: String = ""
+    private var savedContent: String = ""
 
     fun setFile(file: FileModel) {
         name = file.fileName
         path = file.path
-        val content = fileRepository.readFile(file.path)
-        savedContent = content
-        fileChangeHistory = mutableListOf(content)
+        savedContent = fileRepository.readFile(file.path)
+        fileChangeHistory = mutableListOf(savedContent)
         index = 0
+
+        viewModelScope.launch {
+            file.lastOpeningDate = Date()
+            dbRepository.updateOrInsertFile(file)
+        }
     }
 
-    fun setFile(path: String){
+    fun setFileByPath(path: String) {
         setFile(FileModel(path))
     }
 
@@ -58,10 +63,8 @@ class EditFileViewModel : ViewModel() {
     }
 
     fun onSave() {
-        if (!isSaved()) {
-            savedContent = fileChangeHistory[index]
-            fileRepository.writeFile(path, fileChangeHistory[index])
-        }
+        savedContent = fileChangeHistory[index]
+        fileRepository.writeFile(path, fileChangeHistory[index])
     }
 
     fun onChangedText(newText: String) {

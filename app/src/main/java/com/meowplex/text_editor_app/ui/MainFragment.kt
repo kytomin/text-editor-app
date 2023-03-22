@@ -1,6 +1,7 @@
 package com.meowplex.text_editor_app.ui
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.meowplex.text_editor_app.R
 import com.meowplex.text_editor_app.adapters.MainAdapter
 import com.meowplex.text_editor_app.databinding.FragmentMainBinding
-import com.meowplex.text_editor_app.extensions.showPermissionsToast
+import com.meowplex.text_editor_app.extensions.showToastAndRequirePermissions
+import com.meowplex.text_editor_app.model.FileModel
 import com.meowplex.text_editor_app.repository.PermissionRepository
 import com.meowplex.text_editor_app.viewmodel.MainViewModel
 
@@ -28,6 +31,7 @@ class MainFragment : Fragment() {
     private lateinit var toolBar: Toolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var floatingActionButton: FloatingActionButton
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private val onBackPressedCallback: OnBackPressedCallback =
         object : OnBackPressedCallback(true) {
@@ -48,8 +52,7 @@ class MainFragment : Fragment() {
         binding.viewmodel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         binding.viewmodel?.loadFiles()
         requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback
+            viewLifecycleOwner, onBackPressedCallback
         )
 
         return binding.root
@@ -60,6 +63,7 @@ class MainFragment : Fragment() {
         setToolBar(view)
         pushItemsToRecyclerView(view)
         observeFloatingActionButton(view)
+        observeSwipeRefresh(view)
     }
 
     private fun setToolBar(view: View) {
@@ -74,10 +78,8 @@ class MainFragment : Fragment() {
         toolBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_delete -> {
-                    if (!PermissionRepository().checkStoragePermission())
-                        context?.showPermissionsToast()
-                    else
-                        showDeleteConfirmDialog(view)
+                    if (!PermissionRepository().checkStoragePermission()) context?.showToastAndRequirePermissions()
+                    else showConfirmDeletionDialog(view)
                 }
                 R.id.action_clear_all -> {
                     stopSelectMode()
@@ -93,42 +95,58 @@ class MainFragment : Fragment() {
 
     private fun pushItemsToRecyclerView(view: View) {
 
+        fun onItemClick(file: FileModel) {
+            if (!PermissionRepository().checkStoragePermission()) context?.showToastAndRequirePermissions()
+            else {
+                val bundle = Bundle()
+                bundle.putString("path", file.path)
+                findNavController().navigate(R.id.editFileFragment, bundle)
+            }
+        }
+
         recyclerView = view.findViewById(R.id.main_recycler_view)
         val noFilesTextView: TextView = view.findViewById(R.id.no_recent_files_textview)
+
+        recyclerView.adapter = MainAdapter(
+            binding.viewmodel!!.files.value!!,
+            { onItemClick(it) },
+            { onChangeSelection() }
+        )
 
         binding.viewmodel!!.files.observe(viewLifecycleOwner) { files ->
 
             if (files.isEmpty()) noFilesTextView.visibility = View.VISIBLE
             else noFilesTextView.visibility = View.GONE
-
-            recyclerView.adapter = MainAdapter(files,
-                { file ->
-                    if (!PermissionRepository().checkStoragePermission())
-                        context?.showPermissionsToast()
-                    else {
-                        binding.viewmodel?.onOpenFile(file)
-                        val bundle = Bundle()
-                        bundle.putString("path", file.path)
-                        findNavController().navigate(R.id.editFileFragment, bundle)
-                    }
-                },
-                {
-                    onChangeSelection()
-                }
-            )
+            (recyclerView.adapter as MainAdapter).updateDataset(files)
         }
     }
 
     private fun observeFloatingActionButton(view: View) {
-        floatingActionButton =
-            view.findViewById(R.id.main_floating_action_button)
+        floatingActionButton = view.findViewById(R.id.main_floating_action_button)
         floatingActionButton.setOnClickListener {
             AddFileDialog().show(childFragmentManager, AddFileDialog.TAG)
         }
-
     }
 
-    private fun showDeleteConfirmDialog(view: View) {
+    private fun observeSwipeRefresh(view: View) {
+        val typedValue = TypedValue()
+        view.context.theme.resolveAttribute(
+            com.google.android.material.R.attr.colorSecondaryVariant,
+            typedValue,
+            true
+        )
+        val color = typedValue.data
+        swipeRefresh = view.findViewById(R.id.main_swipe_refresh)
+        swipeRefresh.setColorSchemeColors(color)
+        swipeRefresh.setOnRefreshListener {
+            binding.viewmodel!!.onRefresh {
+                swipeRefresh.isRefreshing = false
+                stopSelectMode()
+            }
+        }
+    }
+
+    private fun showConfirmDeletionDialog(view: View) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(view.context)
         builder.setMessage(getString(R.string.want_delete_files))
         builder.setPositiveButton(getString(R.string.yes)) { _, _ ->
@@ -141,24 +159,12 @@ class MainFragment : Fragment() {
         builder.show()
     }
 
-    private fun stopSelectMode() {
-        (recyclerView.adapter as MainAdapter).clearSelection()
-        toolBar.menu.findItem(R.id.action_delete).isVisible = false
-        toolBar.menu.findItem(R.id.action_clear_all).isVisible = false
-        toolBar.menu.findItem(R.id.action_select_all).isVisible = false
-        toolBar.title = getString(R.string.app_name)
-        floatingActionButton.show()
-    }
-
     private fun onChangeSelection() {
-
         val adapter = recyclerView.adapter as MainAdapter
         val selectedItemsCount = adapter.selectedItemCount
         val itemsCount = adapter.itemCount
         toolBar.title = "$selectedItemsCount/$itemsCount"
         if (!adapter.isSelectMode) return stopSelectMode()
-
-
 
         toolBar.menu.findItem(R.id.action_delete).isVisible = true
         toolBar.menu.findItem(R.id.action_clear_all).isVisible =
@@ -168,5 +174,13 @@ class MainFragment : Fragment() {
         floatingActionButton.hide()
     }
 
+    private fun stopSelectMode() {
+        (recyclerView.adapter as MainAdapter).clearSelection()
+        toolBar.menu.findItem(R.id.action_delete).isVisible = false
+        toolBar.menu.findItem(R.id.action_clear_all).isVisible = false
+        toolBar.menu.findItem(R.id.action_select_all).isVisible = false
+        toolBar.title = getString(R.string.app_name)
+        floatingActionButton.show()
+    }
 
 }
