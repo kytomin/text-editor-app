@@ -35,6 +35,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:paddingStart="12dp"
+            android:maxLines="1"
             android:text="@string/new_file" />
 
     </LinearLayout>
@@ -55,6 +56,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:paddingStart="12dp"
+        android:maxLines="1"
         android:text="@string/existing_file" />
     </LinearLayout>
 

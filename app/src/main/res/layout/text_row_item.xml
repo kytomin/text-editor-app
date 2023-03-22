@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:textSize="22sp"
-        android:singleLine="true"
+        android:maxLines="1"
         android:layout_gravity="center_vertical"
         android:text="@string/example_text"/>
 
