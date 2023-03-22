@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.meowplex.text_editor_app.model.FileModel
 import com.meowplex.text_editor_app.repository.DbRepository
 import com.meowplex.text_editor_app.repository.FileRepository
+import com.meowplex.text_editor_app.utils.SearchManager
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -14,6 +15,7 @@ class MainViewModel : ViewModel() {
 
     private val dbRepository = DbRepository()
     private val fileRepository = FileRepository()
+    private var searchManager: SearchManager? = null
 
     private val _files = MutableLiveData<List<FileModel>>(listOf())
     val files: LiveData<List<FileModel>> = _files
@@ -68,7 +70,18 @@ class MainViewModel : ViewModel() {
             dbRepository.deleteFiles(deleteFiles)
             fileRepository.deleteFiles(deleteFiles)
         }
+    }
 
+    fun onSearch(query: String){
+        if (searchManager == null){
+            searchManager = SearchManager(_files.value!!)
+        }
+        _files.value = searchManager!!.search(query)
+    }
+
+    fun onStopSearching(): Boolean{
+        searchManager = null
+        return false
     }
 
 
