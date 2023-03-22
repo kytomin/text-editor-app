@@ -30,6 +30,14 @@ class MainViewModel : ViewModel() {
         onAddFile(path)
     }
 
+    fun onRefresh(callback: () -> Unit){
+        viewModelScope.launch {
+            _files.value = dbRepository.getAllFiles()
+            sortFiles()
+            callback()
+        }
+    }
+
     fun onAddFile(path: String) {
         val existingFile = findFileInFiles(path)
 
