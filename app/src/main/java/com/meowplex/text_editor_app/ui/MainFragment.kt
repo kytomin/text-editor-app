@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -61,6 +63,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setToolBar(view)
+        setSearchView()
         pushItemsToRecyclerView(view)
         observeFloatingActionButton(view)
         observeSwipeRefresh(view)
@@ -70,7 +73,7 @@ class MainFragment : Fragment() {
         toolBar = view.findViewById(R.id.main_toolbar)
         toolBar.title = getString(R.string.app_name)
         toolBar.inflateMenu(R.menu.main_menu)
-        toolBar.menu.findItem(R.id.action_search).isVisible = false
+        toolBar.menu.findItem(R.id.action_search).isVisible = true
         toolBar.menu.findItem(R.id.action_delete).isVisible = false
         toolBar.menu.findItem(R.id.action_clear_all).isVisible = false
         toolBar.menu.findItem(R.id.action_select_all).isVisible = false
@@ -90,6 +93,36 @@ class MainFragment : Fragment() {
                 }
             }
             true
+        }
+    }
+
+    private fun setSearchView() {
+
+        val searchView = toolBar.menu.findItem(R.id.action_search).actionView as SearchView
+        searchView.queryHint = getString(R.string.filename)
+
+        searchView.setOnQueryTextListener(
+            object : OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    binding.viewmodel!!.onSearch(newText!!)
+                    return true
+                }
+            }
+        )
+
+        searchView.setOnSearchClickListener {
+            toolBar.title = getString(R.string.search)
+            floatingActionButton.hide()
+        }
+
+        searchView.setOnCloseListener {
+            toolBar.title = getString(R.string.app_name)
+            floatingActionButton.show()
+            binding.viewmodel!!.onStopSearching()
         }
     }
 
@@ -167,6 +200,7 @@ class MainFragment : Fragment() {
         if (!adapter.isSelectMode) return stopSelectMode()
 
         toolBar.menu.findItem(R.id.action_delete).isVisible = true
+        toolBar.menu.findItem(R.id.action_search).isVisible = false
         toolBar.menu.findItem(R.id.action_clear_all).isVisible =
             adapter.selectedItemCount == adapter.itemCount
         toolBar.menu.findItem(R.id.action_select_all).isVisible =
@@ -179,6 +213,7 @@ class MainFragment : Fragment() {
         toolBar.menu.findItem(R.id.action_delete).isVisible = false
         toolBar.menu.findItem(R.id.action_clear_all).isVisible = false
         toolBar.menu.findItem(R.id.action_select_all).isVisible = false
+        toolBar.menu.findItem(R.id.action_search).isVisible = true
         toolBar.title = getString(R.string.app_name)
         floatingActionButton.show()
     }
