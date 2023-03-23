@@ -20,10 +20,12 @@ class MainViewModel : ViewModel() {
     private val _files = MutableLiveData<List<FileModel>>(listOf())
     val files: LiveData<List<FileModel>> = _files
 
-    fun loadFiles() {
+    fun onLoadFiles(callback: (() -> Unit)? = null) {
         viewModelScope.launch {
-            _files.value = dbRepository.getAllFiles()
-            sortFiles()
+            setFiles(dbRepository.getAllFiles())
+            if (callback != null) {
+                callback()
+            }
         }
     }
 
@@ -32,62 +34,17 @@ class MainViewModel : ViewModel() {
         onAddFile(path)
     }
 
-    fun onRefresh(callback: () -> Unit) {
-        viewModelScope.launch {
-            if (searchManager == null) {
-                _files.value = dbRepository.getAllFiles()
-                sortFiles()
-            } else {
-                searchManager!!.setFiles(dbRepository.getAllFiles())
-                _files.value = searchManager!!.research()
-            }
-            callback()
-        }
-    }
-
     fun onAddFile(path: String) {
-        val existingFile = findFileInFiles(path)
 
-        if (existingFile != null) {
-            existingFile.lastOpeningDate = Date()
-            sortFiles()
-            viewModelScope.launch {
-                dbRepository.updateFile(existingFile)
-            }
-            return
+        if (isFileExists(path, searchManager?.getFiles() ?: _files.value!!)) {
+            return updateFile(path)
         }
 
-        val newFile = FileModel(path)
-        if (searchManager == null) {
-            _files.value = listOf(newFile) + _files.value!!
-            sortFiles()
-        } else {
-            searchManager!!.setFiles(listOf(newFile) + searchManager!!.getFiles())
-            _files.value = searchManager!!.research()
-        }
-
-        viewModelScope.launch {
-            dbRepository.insertFile(newFile)
-        }
+        addFile(FileModel(path))
     }
 
     fun onDeleteFiles(deleteFiles: List<FileModel>) {
-
-        if (searchManager == null) {
-            val temp = _files.value!!.toMutableList()
-            temp.removeAll(deleteFiles)
-            _files.value = temp.toList()
-        } else {
-            val temp = searchManager!!.getFiles().toMutableList()
-            temp.removeAll(deleteFiles)
-            searchManager!!.setFiles(temp)
-            _files.value = searchManager!!.research()
-        }
-
-        viewModelScope.launch {
-            dbRepository.deleteFiles(deleteFiles)
-            fileRepository.deleteFiles(deleteFiles)
-        }
+        removeFiles(deleteFiles)
     }
 
     fun onStartSearching() {
@@ -95,7 +52,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun onSearch(query: String) {
-        _files.value = searchManager!!.search(query)
+        if (searchManager != null)
+            _files.value = searchManager!!.search(query)
     }
 
     fun onStopSearching(): Boolean {
@@ -103,17 +61,79 @@ class MainViewModel : ViewModel() {
         return false
     }
 
-
-    private fun sortFiles() {
-        _files.value = _files.value?.sortedByDescending { f -> f.lastOpeningDate }
+    private fun setFiles(newValue: List<FileModel>) {
+        if (searchManager == null) {
+            _files.value = sortFiles(newValue)
+        } else {
+            searchManager!!.setFiles(sortFiles(newValue))
+            _files.value = searchManager!!.research()
+        }
     }
 
-    private fun findFileInFiles(path: String): FileModel? {
-        for (f in _files.value!!) {
-            if (f.path == path)
-                return f
+    private fun addFile(newFile: FileModel) {
+        if (searchManager == null) {
+            _files.value = sortFiles(listOf(newFile) + _files.value!!)
+        } else {
+            searchManager!!.setFiles(sortFiles(listOf(newFile) + searchManager!!.getFiles()))
+            _files.value = searchManager!!.research()
         }
-        return null
+        viewModelScope.launch {
+            dbRepository.insertFile(newFile)
+        }
+    }
+
+    private fun updateFile(path: String) {
+        val nowDate = Date()
+        if (searchManager == null) {
+            for (f in _files.value!!) {
+                if (f.path == path) {
+                    f.lastOpeningDate = nowDate
+                }
+            }
+            _files.value = sortFiles(_files.value!!)
+        } else {
+            val temp = searchManager!!.getFiles()
+            for (f in temp) {
+                if (f.path == path) {
+                    f.lastOpeningDate = nowDate
+                }
+            }
+            searchManager!!.setFiles(sortFiles(temp))
+            _files.value = searchManager!!.research()
+        }
+        viewModelScope.launch {
+            dbRepository.updateFile(FileModel(path, nowDate))
+        }
+    }
+
+    private fun removeFiles(files: List<FileModel>) {
+        if (searchManager == null) {
+            val temp = _files.value!!.toMutableList()
+            temp.removeAll(files)
+            _files.value = temp.toList()
+        } else {
+            val temp = searchManager!!.getFiles().toMutableList()
+            temp.removeAll(files)
+            searchManager!!.setFiles(sortFiles(temp))
+            _files.value = searchManager!!.research()
+        }
+        viewModelScope.launch {
+            dbRepository.deleteFiles(files)
+            fileRepository.deleteFiles(files)
+        }
+    }
+
+
+    private fun sortFiles(files: List<FileModel>): List<FileModel> {
+        return files.sortedByDescending { f -> f.lastOpeningDate }
+    }
+
+    private fun isFileExists(path: String, files: List<FileModel>): Boolean {
+        for (f in files) {
+            if (f.path == path)
+                return true
+        }
+        return false
     }
 
 }

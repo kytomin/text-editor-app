@@ -58,7 +58,7 @@ class MainFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false)
         binding.viewmodel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
-        binding.viewmodel?.loadFiles()
+        binding.viewmodel?.onLoadFiles()
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner, onBackPressedCallback
         )
@@ -178,7 +178,7 @@ class MainFragment : Fragment() {
         swipeRefresh = view.findViewById(R.id.main_swipe_refresh)
         swipeRefresh.setColorSchemeColors(color)
         swipeRefresh.setOnRefreshListener {
-            binding.viewmodel!!.onRefresh {
+            binding.viewmodel!!.onLoadFiles {
                 swipeRefresh.isRefreshing = false
             }
         }

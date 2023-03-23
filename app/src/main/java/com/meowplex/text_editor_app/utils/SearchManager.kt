@@ -10,8 +10,9 @@ class SearchManager(files: List<FileModel>) {
     init {
         setFiles(files)
     }
-    fun setFiles(files: List<FileModel>){
-        this.files = files.sortedByDescending { f -> f.lastOpeningDate }
+
+    fun setFiles(files: List<FileModel>) {
+        this.files = files
     }
 
     fun getFiles(): List<FileModel> = this.files
@@ -27,7 +28,7 @@ class SearchManager(files: List<FileModel>) {
         return response
     }
 
-    fun research(): List<FileModel>{
+    fun research(): List<FileModel> {
         return search(lastQuery)
     }
 

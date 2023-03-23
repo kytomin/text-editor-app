@@ -17,9 +17,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         AppDatabase.setContext(this)
         PermissionManager.setActivity(this)
-        val permRepository = PermissionManager()
-        if (!permRepository.checkStoragePermission())
-            permRepository.requireStoragePermission()
+        val permManager = PermissionManager()
+        if (!permManager.checkStoragePermission())
+            permManager.requireStoragePermission()
 
         setContentView(R.layout.activity_main)
 
