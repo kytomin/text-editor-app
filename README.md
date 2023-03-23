@@ -1,5 +1,5 @@
 # Text Editor App
-A simple quiz app using kotlin with downloading data from the API
+Application for viewing and editing text files
 
 
 <img src="https://github.com/kytomin/text-editor-app/raw/main/images/1.png" width="300">        <img src="https://github.com/kytomin/text-editor-app/raw/main/images/2.png" width="300">
