@@ -1,5 +1,6 @@
 # Text Editor App
 Application for viewing and editing text files
+MVVM, Single Activity, XML, Room, RecyclerView.
 
 
 <img src="https://github.com/kytomin/text-editor-app/raw/main/images/1.png" width="300">        <img src="https://github.com/kytomin/text-editor-app/raw/main/images/2.png" width="300">
