@@ -1,5 +1,5 @@
 # Text Editor App
-Application for viewing and editing text files
+Application for viewing and editing text files.
 MVVM, Single Activity, XML, Room, RecyclerView.
 
 
